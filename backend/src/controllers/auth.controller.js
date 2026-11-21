@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, role, department } = req.body;
   try {
     if (!fullName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -22,21 +22,27 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      fullName,
-      email,
+      fullName: fullName.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
+      role: role?.trim() || "Workspace Member",
+      department: department?.trim() || "Dev",
+      labels: [department?.trim() || "Dev"],
     });
 
     if (newUser) {
-      // generate jwt token here
-      generateToken(newUser._id, res);
       await newUser.save();
+      generateToken(newUser._id, res);
 
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
         profilePic: newUser.profilePic,
+        role: newUser.role,
+        department: newUser.department,
+        labels: newUser.labels,
+        createdAt: newUser.createdAt,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -50,7 +56,11 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -68,6 +78,10 @@ export const login = async (req, res) => {
       fullName: user.fullName,
       email: user.email,
       profilePic: user.profilePic,
+      role: user.role,
+      department: user.department,
+      labels: user.labels,
+      createdAt: user.createdAt,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
@@ -87,19 +101,53 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
+    const { profilePic, fullName, role, department, labels } = req.body;
     const userId = req.user._id;
 
-    if (!profilePic) {
-      return res.status(400).json({ message: "Profile pic is required" });
+    if (!profilePic && !fullName && !role && !department && !labels) {
+      return res.status(400).json({ message: "Profile update data is required" });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profilePic: uploadResponse.secure_url },
-      { new: true }
-    );
+    const updateFields = {};
+
+    if (fullName && fullName.trim()) {
+      updateFields.fullName = fullName.trim();
+    }
+
+    if (role !== undefined && role.trim()) {
+      updateFields.role = role.trim();
+    }
+
+    if (department !== undefined && department.trim()) {
+      updateFields.department = department.trim();
+    }
+
+    if (Array.isArray(labels)) {
+      updateFields.labels = labels;
+    }
+
+    if (profilePic) {
+      let profilePicUrl = profilePic;
+      try {
+        if (
+          process.env.CLOUDINARY_CLOUD_NAME &&
+          process.env.CLOUDINARY_CLOUD_NAME !== "your_cloudinary_cloud_name"
+        ) {
+          const uploadResponse = await cloudinary.uploader.upload(profilePic);
+          profilePicUrl = uploadResponse.secure_url;
+        }
+      } catch (uploadError) {
+        console.log(
+          "Cloudinary upload failed, falling back to data URI:",
+          uploadError.message
+        );
+      }
+      updateFields.profilePic = profilePicUrl;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    }).select("-password");
 
     res.status(200).json(updatedUser);
   } catch (error) {

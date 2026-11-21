@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 
 .env
+# Protect Vertex AI credentials & .env secrets from Git/GitHub
+vertex_credentials.json
+vertex_credentials*.json
+.env.*
+.env.local
+!.env.example

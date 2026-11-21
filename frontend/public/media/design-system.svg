@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#311042" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg3)" />
+  <rect x="48" y="42" width="704" height="416" rx="24" fill="#0f172a" fill-opacity="0.85" stroke="#4c1d95" stroke-width="2" />
+  <text x="84" y="92" fill="#f472b6" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="2">FIGMA DESIGN TOKENS</text>
+  <text x="84" y="126" fill="#ffffff" font-family="sans-serif" font-size="26" font-weight="700">UI Component Library &amp; Color Swatches</text>
+
+  <!-- Color Swatches -->
+  <rect x="84" y="160" width="140" height="130" rx="16" fill="#06b6d4" />
+  <text x="102" y="268" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="700">Cyan #06B6D4</text>
+
+  <rect x="248" y="160" width="140" height="130" rx="16" fill="#6366f1" />
+  <text x="266" y="268" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="700">Indigo #6366F1</text>
+
+  <rect x="412" y="160" width="140" height="130" rx="16" fill="#ec4899" />
+  <text x="430" y="268" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="700">Pink #EC4899</text>
+
+  <rect x="576" y="160" width="140" height="130" rx="16" fill="#10b981" />
+  <text x="594" y="268" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="700">Emerald #10B981</text>
+
+  <!-- Mock UI Controls -->
+  <rect x="84" y="325" width="290" height="90" rx="16" fill="#1e293b" stroke="#334155" />
+  <circle cx="130" cy="370" r="22" fill="#6366f1" />
+  <text x="168" y="365" fill="#f8fafc" font-family="sans-serif" font-size="16" font-weight="700">Modern Chat Bubbles</text>
+  <text x="168" y="388" fill="#94a3b8" font-family="sans-serif" font-size="13">Approved by Design Team</text>
+
+  <rect x="404" y="325" width="312" height="90" rx="16" fill="#1e293b" stroke="#334155" />
+  <circle cx="450" cy="370" r="22" fill="#ec4899" />
+  <text x="488" y="365" fill="#f8fafc" font-family="sans-serif" font-size="16" font-weight="700">Custom Wallpaper Presets</text>
+  <text x="488" y="388" fill="#94a3b8" font-family="sans-serif" font-size="13">Crisp Unblurred Rendering</text>
+</svg>
