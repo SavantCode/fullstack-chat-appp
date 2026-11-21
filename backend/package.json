@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "seed": "node src/seeds/user.seed.js"
+    "seed": "node src/seeds/user.seed.js",
+    "test": "node --check src/index.js && node --check src/lib/cron.js && node --test src/tests/app.test.js"
   },
   "keywords": [],
   "author": "",

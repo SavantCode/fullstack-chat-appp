@@ -1,5 +1,38 @@
 
 
+## [1.3.2] - Align User Schema Default Department in CI Unit Test Suite
+
+### Fixed
+- **Backend Unit Test (`backend/src/tests/app.test.js`)**: Updated `user.department` default assertion to `"General"` to match `backend/src/models/user.model.js`.
+
+---
+
+## [1.3.1] - Align User Schema Default Assertion in CI Unit Test Suite
+
+### Fixed
+- **`backend/src/tests/app.test.js`**: Updated `user.role` default assertion to `"Team Member"` to match `backend/src/models/user.model.js` so all backend CI tests pass cleanly.
+
+---
+
+## [1.3.0] - Free CI/CD Pipeline, Vercel Build Fix & Render Keep-Alive Cron Job
+
+### Added
+- **`cicd/README.md`**: Added comprehensive CI/CD and cloud deployment documentation with Mermaid flowcharts and sequence diagrams explaining the GitHub Actions quality gate, Render dual keep-alive cron architecture, and environment variables.
+- **`vercel.json`**: Fixed Vercel's `[STATIC_BUILD_NO_OUT_DIR]` build error by pointing `outputDirectory` to `frontend/dist` and adding SPA rewrites to `/index.html`.
+- **`render.yaml`**: Added Render Free Web Service blueprint configured with `healthCheckPath: /api/health`.
+- **`backend/src/lib/cron.js`**: Added an automatic 14-minute keep-alive cron job (`startKeepAliveCron`) that pings `/api/health` in production so Render Free Tier never spins down due to inactivity.
+- **`.github/workflows/ci.yml` & `.github/workflows/keep-alive.yml`**: Added 100% free GitHub Actions workflows for automated backend unit tests, frontend ESLint checks, production Vite build verification, and scheduled 14-minute external health pings.
+- **`backend/src/tests/app.test.js`**: Added zero-dependency unit and smoke tests using Node's native `node:test` runner.
+
+### Changed
+- **Cross-Domain Vercel ↔ Render Support (`backend/src/index.js`, `backend/src/lib/socket.js`, `backend/src/lib/utils.js`, `frontend/src/lib/axios.js`, `frontend/src/store/useAuthStore.js`)**:
+  - Added `GET /api/health` endpoint returning server uptime and database connection state.
+  - Updated CORS origin validation to allow `http://localhost:5173`, `FRONTEND_URL`, and `.vercel.app` domains.
+  - Configured `SameSite=None; Secure` JWT cookies in production (`NODE_ENV === "production"`) while keeping `lax` in local development.
+  - Added `VITE_BACKEND_URL` support in `axios.js` and `useAuthStore.js`.
+
+---
+
 ## [1.2.4] - Fix MongoDB Buffering Timeout & Resolve Frontend Store/Method Mismatches
 
 ### Fixed
