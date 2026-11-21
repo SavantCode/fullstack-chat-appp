@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#042f2e" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg4)" />
+  <rect x="48" y="42" width="704" height="416" rx="22" fill="#0f172a" stroke="#14b8a6" stroke-width="2" />
+  <text x="84" y="92" fill="#2dd4bf" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="2">QA &amp; RELEASE REPORT</text>
+  <text x="84" y="126" fill="#f8fafc" font-family="sans-serif" font-size="25" font-weight="700">Sprint 14 Automated Test Suite — 100% Passing</text>
+
+  <!-- Bars -->
+  <rect x="90" y="320" width="75" height="95" rx="8" fill="#0d9488" />
+  <rect x="195" y="275" width="75" height="140" rx="8" fill="#14b8a6" />
+  <rect x="300" y="235" width="75" height="180" rx="8" fill="#2dd4bf" />
+  <rect x="405" y="200" width="75" height="215" rx="8" fill="#38bdf8" />
+  <rect x="510" y="175" width="75" height="240" rx="8" fill="#6366f1" />
+  <rect x="615" y="155" width="75" height="260" rx="8" fill="#10b981" />
+
+  <text x="127" y="438" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="12">Mon</text>
+  <text x="232" y="438" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="12">Tue</text>
+  <text x="337" y="438" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="12">Wed</text>
+  <text x="442" y="438" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="12">Thu</text>
+  <text x="547" y="438" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="12">Fri</text>
+  <text x="652" y="438" text-anchor="middle" fill="#10b981" font-family="sans-serif" font-size="12" font-weight="700">Release</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#090d1e" />
+      <stop offset="35%" stop-color="#1e1b4b" />
+      <stop offset="65%" stop-color="#4c1d95" />
+      <stop offset="85%" stop-color="#be185d" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <linearGradient id="lake" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#831843" />
+      <stop offset="40%" stop-color="#311042" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="1600" height="650" fill="url(#sky)" />
+  <!-- Stars -->
+  <circle cx="220" cy="110" r="2" fill="#ffffff" opacity="0.8" />
+  <circle cx="480" cy="80" r="1.5" fill="#ffffff" opacity="0.6" />
+  <circle cx="760" cy="140" r="2.5" fill="#ffffff" opacity="0.9" />
+  <circle cx="1090" cy="95" r="2" fill="#ffffff" opacity="0.7" />
+  <circle cx="1380" cy="160" r="1.8" fill="#ffffff" opacity="0.8" />
+  <circle cx="1240" cy="60" r="2.2" fill="#ffffff" opacity="0.6" />
+  <circle cx="340" cy="210" r="1.5" fill="#ffffff" opacity="0.5" />
+  <!-- Sun/Moon Glow -->
+  <circle cx="800" cy="540" r="140" fill="#fb923c" opacity="0.35" />
+  <circle cx="800" cy="540" r="85" fill="#fde047" opacity="0.55" />
+  <!-- Distant Mountains -->
+  <polygon points="0,650 0,470 230,360 470,510 730,340 1010,500 1290,350 1600,480 1600,650" fill="#1e1b4b" />
+  <!-- Foreground Mountains -->
+  <polygon points="0,650 0,530 180,450 420,570 660,420 940,565 1190,430 1440,545 1600,490 1600,650" fill="#0f172a" />
+  <!-- Lake Reflection -->
+  <rect y="650" width="1600" height="350" fill="url(#lake)" />
+  <!-- Water Shimmer Lines -->
+  <rect x="690" y="675" width="220" height="4" rx="2" fill="#fde047" opacity="0.4" />
+  <rect x="720" y="700" width="160" height="3" rx="1.5" fill="#fb923c" opacity="0.35" />
+  <rect x="660" y="730" width="280" height="3" rx="1.5" fill="#f472b6" opacity="0.25" />
+  <rect x="740" y="765" width="120" height="2" rx="1" fill="#f472b6" opacity="0.2" />
+</svg>

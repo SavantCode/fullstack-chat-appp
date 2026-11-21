@@ -20,6 +20,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    role: {
+      type: String,
+      default: "Team Member",
+    },
+    department: {
+      type: String,
+      default: "General",
+    },
+    labels: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
