@@ -39,6 +39,7 @@ io.on("connection", (socket) => {
     if (!userId || !receiverId) return;
     const receiverSockets = getReceiverSocketId(receiverId);
     if (receiverSockets) {
+      io.to(receiverSockets).emit("typing", { senderId: userId });
       io.to(receiverSockets).emit("userTyping", { senderId: userId });
     }
   });
@@ -47,6 +48,7 @@ io.on("connection", (socket) => {
     if (!userId || !receiverId) return;
     const receiverSockets = getReceiverSocketId(receiverId);
     if (receiverSockets) {
+      io.to(receiverSockets).emit("stopTyping", { senderId: userId });
       io.to(receiverSockets).emit("userStopTyping", { senderId: userId });
     }
   });

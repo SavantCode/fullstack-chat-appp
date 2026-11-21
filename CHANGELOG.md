@@ -1,5 +1,20 @@
 
 
+## [1.2.4] - Fix MongoDB Buffering Timeout & Resolve Frontend Store/Method Mismatches
+
+### Fixed
+- **MongoDB `Operation users.findOne() buffering timed out after 10000ms` (`backend/src/lib/db.js`, `backend/src/index.js`)**:
+  - Added path-resilient `.env` loading so `MONGODB_URI` is always loaded regardless of the working directory.
+  - Enabled `bufferCommands: false` with a `10000ms` connection timeout and added an `ensureDBConnected` middleware on `/api/auth` and `/api/messages` that automatically retries connecting to MongoDB on-demand (or returns an immediate, clear `503` message if MongoDB Atlas IP whitelist / local `mongod` is unreachable) instead of hanging for 10 seconds.
+- **Logout State Reset (`frontend/src/store/useChatStore.js`)**:
+  - Added the missing `resetChatState()` action to `useChatStore` so `useAuthStore.logout()` clears chat state cleanly without throwing a `TypeError`.
+- **Settings & Wallpaper Store Methods (`frontend/src/store/useThemeStore.js`, `frontend/src/pages/SettingsPage.jsx`)**:
+  - Added `setUserChatWallpaper` and `getActiveWallpaperConfig` to `useThemeStore.js` and aligned wallpaper property names (`previewColor`, `backgroundStyle`, `sentBubbleClass`, `receivedBubbleClass`, `isDarkCanvas`) across `SettingsPage`, `ChatHeader`, and `ContactDetailPanel`.
+- **Real-Time Typing Indicator Event Names (`backend/src/lib/socket.js`, `frontend/src/store/useChatStore.js`)**:
+  - Synchronized `typing` / `userTyping` and `stopTyping` / `userStopTyping` socket event names between backend and frontend.
+
+---
+
 ## [1.2.3] - Fix Blank Screen After Auth Loading & Harden Store State
 
 ### Fixed

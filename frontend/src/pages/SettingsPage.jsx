@@ -1,6 +1,7 @@
 import { CHAT_WALLPAPERS, THEMES } from "../constants";
 import { useThemeStore } from "../store/useThemeStore";
-import { Check, Palette, Send, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Palette, Send, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const PREVIEW_MESSAGES = [
   {
@@ -17,14 +18,28 @@ const PREVIEW_MESSAGES = [
 ];
 
 const SettingsPage = () => {
-  const { theme, setTheme, chatWallpaper, setChatWallpaper, getActiveWallpaperConfig } =
+  const { theme, setTheme, chatWallpaper, setChatWallpaper, getActiveWallpaper } =
     useThemeStore();
 
-  const activeWallpaper = getActiveWallpaperConfig();
+  const activeWallpaper = getActiveWallpaper();
 
   return (
     <div className="min-h-screen container mx-auto px-4 pt-20 pb-12 max-w-5xl">
       <div className="space-y-8">
+        {/* Top Back to Chat Bar */}
+        <div className="flex items-center justify-between border-b border-base-300 pb-4">
+          <div>
+            <h1 className="text-2xl font-bold">Workspace Settings</h1>
+            <p className="text-sm text-base-content/60">
+              Customize your chat wallpaper, message bubbles, and interface palette
+            </p>
+          </div>
+          <Link to="/" className="btn btn-sm btn-primary gap-2 rounded-xl">
+            <ArrowLeft className="size-4" />
+            Back to Chat
+          </Link>
+        </div>
+
         {/* Section 1: Instagram / WhatsApp Style Chat Wallpapers */}
         <div className="space-y-3">
           <div className="flex flex-col gap-1">
@@ -51,7 +66,7 @@ const SettingsPage = () => {
                       : "border-base-300 hover:border-primary/50"
                   }`}
                   style={{
-                    backgroundImage: wp.preview,
+                    background: wp.previewColor,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
@@ -62,7 +77,7 @@ const SettingsPage = () => {
                       <span className="text-xs font-bold text-white">{wp.name}</span>
                       {isSelected && <Check className="size-4 text-emerald-400" />}
                     </div>
-                    <p className="text-[10px] text-white/70 truncate">{wp.subtitle}</p>
+                    <p className="text-[10px] text-white/70 truncate">{wp.category}</p>
                   </div>
                 </button>
               );
@@ -120,10 +135,10 @@ const SettingsPage = () => {
               <div className="max-w-xl mx-auto">
                 <div
                   className="rounded-2xl shadow-lg overflow-hidden border border-base-300"
-                  style={activeWallpaper.bgStyle}
+                  style={activeWallpaper.backgroundStyle}
                 >
                   {/* Chat Header */}
-                  <div className="px-4 py-3 border-b border-base-300/70 bg-base-100/90 backdrop-blur-md">
+                  <div className="px-4 py-3 border-b border-base-300/70 bg-slate-900/95 text-white">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-content font-bold">
@@ -136,16 +151,14 @@ const SettingsPage = () => {
                               #Design
                             </span>
                           </div>
-                          <p className="text-xs text-emerald-500">Active now • Lead Designer</p>
+                          <p className="text-xs text-emerald-400">Active now • Lead Designer</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Chat Messages */}
-                  <div
-                    className={`p-4 space-y-4 min-h-[210px] max-h-[210px] overflow-y-auto ${activeWallpaper.overlayClass}`}
-                  >
+                  <div className="p-4 space-y-4 min-h-[210px] max-h-[210px] overflow-y-auto">
                     {PREVIEW_MESSAGES.map((message) => (
                       <div
                         key={message.id}
@@ -166,8 +179,8 @@ const SettingsPage = () => {
                   </div>
 
                   {/* Chat Input */}
-                  <div className="p-3 border-t border-base-300/60 bg-base-100/85 backdrop-blur-md">
-                    <div className="flex gap-2 items-center bg-base-200 rounded-full px-3 py-1.5">
+                  <div className="p-3 border-t border-white/10 bg-slate-900/95">
+                    <div className="flex gap-2 items-center bg-slate-800/90 text-white rounded-full px-3 py-1.5">
                       <input
                         type="text"
                         className="bg-transparent flex-1 text-sm focus:outline-none"
