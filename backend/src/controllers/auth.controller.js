@@ -1,4 +1,4 @@
-import { generateToken } from "../lib/utils.js";
+import { generateToken, getCookieOptions } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
@@ -14,20 +14,22 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (user) return res.status(400).json({ message: "Email already exists" });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const defaultDept = department || "Dev";
     const newUser = new User({
       fullName: fullName.trim(),
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       password: hashedPassword,
-      role: role?.trim() || "Workspace Member",
-      department: department?.trim() || "Dev",
-      labels: [department?.trim() || "Dev"],
+      role: role || "Workspace Colleague",
+      department: defaultDept,
+      labels: [defaultDept],
     });
 
     if (newUser) {
@@ -60,7 +62,8 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -91,7 +94,7 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    res.cookie("jwt", "", { ...getCookieOptions(), maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
@@ -104,21 +107,22 @@ export const updateProfile = async (req, res) => {
     const { profilePic, fullName, role, department, labels } = req.body;
     const userId = req.user._id;
 
-    if (!profilePic && !fullName && !role && !department && !labels) {
-      return res.status(400).json({ message: "Profile update data is required" });
-    }
-
     const updateFields = {};
 
-    if (fullName && fullName.trim()) {
+    if (profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updateFields.profilePic = uploadResponse.secure_url;
+    }
+
+    if (typeof fullName === "string" && fullName.trim()) {
       updateFields.fullName = fullName.trim();
     }
 
-    if (role !== undefined && role.trim()) {
+    if (typeof role === "string" && role.trim()) {
       updateFields.role = role.trim();
     }
 
-    if (department !== undefined && department.trim()) {
+    if (typeof department === "string" && department.trim()) {
       updateFields.department = department.trim();
     }
 
@@ -126,23 +130,8 @@ export const updateProfile = async (req, res) => {
       updateFields.labels = labels;
     }
 
-    if (profilePic) {
-      let profilePicUrl = profilePic;
-      try {
-        if (
-          process.env.CLOUDINARY_CLOUD_NAME &&
-          process.env.CLOUDINARY_CLOUD_NAME !== "your_cloudinary_cloud_name"
-        ) {
-          const uploadResponse = await cloudinary.uploader.upload(profilePic);
-          profilePicUrl = uploadResponse.secure_url;
-        }
-      } catch (uploadError) {
-        console.log(
-          "Cloudinary upload failed, falling back to data URI:",
-          uploadError.message
-        );
-      }
-      updateFields.profilePic = profilePicUrl;
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "No profile fields provided to update" });
     }
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {

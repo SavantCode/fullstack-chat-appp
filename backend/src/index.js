@@ -3,13 +3,15 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
+import mongoose from "mongoose";
 import { fileURLToPath } from "url";
 
 import { connectDB, ensureDBConnected } from "./lib/db.js";
+import { startKeepAliveCron } from "./lib/cron.js";
 
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
-import { app, server } from "./lib/socket.js";
+import { app, server, corsOriginValidator } from "./lib/socket.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,20 +29,37 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: corsOriginValidator,
     credentials: true,
   })
 );
+
+// Lightweight health check endpoint for Render health checks & Keep-Alive cron jobs
+app.get("/api/health", (req, res) => {
+  const readyStateMap = {
+    0: "disconnected",
+    1: "connected",
+    2: "connecting",
+    3: "disconnecting",
+  };
+  res.status(200).json({
+    status: "ok",
+    uptime: Math.round(process.uptime()),
+    dbState: readyStateMap[mongoose.connection.readyState] || "unknown",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Ensure DB is connected before running auth or message queries
 app.use("/api/auth", ensureDBConnected, authRoutes);
 app.use("/api/messages", ensureDBConnected, messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(rootDir, "../frontend/dist")));
+  const frontendDistPath = path.resolve(__dirname, "../../frontend/dist");
+  app.use(express.static(frontendDistPath));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(rootDir, "../frontend", "dist", "index.html"));
+    res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
 
@@ -54,7 +73,10 @@ const startServer = async () => {
 
   server.listen(PORT, () => {
     console.log("🚀 Server is running on PORT:" + PORT);
+    startKeepAliveCron();
   });
 };
 
-startServer();
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}

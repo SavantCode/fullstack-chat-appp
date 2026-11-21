@@ -1,0 +1,26 @@
+name: Render Keep-Alive Cron
+
+on:
+  schedule:
+    # Runs every 14 minutes to prevent Render Free Tier from spinning down after 15m of inactivity
+    - cron: "*/14 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping-render-backend:
+    name: Ping Render /api/health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Keep-Alive HTTP GET to Render Backend
+        env:
+          RENDER_BACKEND_URL: ${{ vars.RENDER_BACKEND_URL || secrets.RENDER_BACKEND_URL }}
+        run: |
+          if [ -z "$RENDER_BACKEND_URL" ]; then
+            echo "ℹ️ RENDER_BACKEND_URL is not configured in GitHub Repo Variables yet. Skipping external ping."
+            exit 0
+          fi
+          TARGET_URL="${RENDER_BACKEND_URL%/}/api/health"
+          echo "Pinging $TARGET_URL ..."
+          curl --fail --silent --show-error --max-time 25 "$TARGET_URL"
+          echo ""
+          echo "✅ Render backend is awake and healthy!"
