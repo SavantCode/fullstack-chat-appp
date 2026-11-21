@@ -15,17 +15,18 @@ const safeParseJSON = (key, fallback) => {
 const FALLBACK_WALLPAPER = {
   id: "twilight-lake",
   name: "Twilight Lake",
-  category: "Scenic",
-  preview: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%)",
-  bgStyle: {
-    backgroundImage: `url('/media/twilight-wallpaper.svg')`,
+  category: "Scenic Wallpaper",
+  previewColor: "linear-gradient(135deg, #311042 0%, #be185d 50%, #f97316 100%)",
+  backgroundStyle: {
+    backgroundImage: "url('/media/twilight-wallpaper.svg')",
     backgroundSize: "cover",
     backgroundPosition: "center",
   },
-  isDark: true,
-  sentBubble: "bg-[#00a3ff] text-white shadow-md border border-[#38bdf8]/30",
-  receivedBubble: "bg-[#1e2330]/95 text-slate-100 border border-white/10 shadow-md",
-  accentColor: "#00a3ff",
+  sentBubbleClass:
+    "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md border border-white/15",
+  receivedBubbleClass:
+    "bg-slate-900/90 text-white border border-white/15 shadow-md",
+  isDarkCanvas: true,
 };
 
 export const useThemeStore = create((set, get) => ({
@@ -62,6 +63,21 @@ export const useThemeStore = create((set, get) => ({
     }
   },
 
+  // Explicit helper for per-colleague wallpaper selection used by ChatHeader & ContactDetailPanel
+  setUserChatWallpaper: (userId, wallpaperId) => {
+    if (!userId) {
+      get().setChatWallpaper(wallpaperId);
+      return;
+    }
+    const updated = { ...get().perUserWallpaper, [userId]: wallpaperId };
+    try {
+      localStorage.setItem("chat-per-user-wallpaper", JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+    set({ perUserWallpaper: updated });
+  },
+
   resetUserWallpaper: (userId) => {
     if (!userId) return;
     const updated = { ...get().perUserWallpaper };
@@ -81,8 +97,8 @@ export const useThemeStore = create((set, get) => ({
       // ignore
     }
     set({ customWallpaperUrl: url || "" });
-    if (url) {
-      get().setChatWallpaper("custom-url", userId);
+    if (url && userId) {
+      get().setUserChatWallpaper(userId, "custom-image");
     }
   },
 
@@ -90,25 +106,31 @@ export const useThemeStore = create((set, get) => ({
     const { chatWallpaper, perUserWallpaper, customWallpaperUrl } = get();
     const targetId = (userId && perUserWallpaper?.[userId]) || chatWallpaper;
 
-    if (targetId === "custom-url" && customWallpaperUrl) {
+    if ((targetId === "custom-image" || targetId === "custom-url") && customWallpaperUrl) {
       return {
-        id: "custom-url",
+        id: "custom-image",
         name: "Custom Wallpaper",
-        category: "Custom",
-        preview: `url('${customWallpaperUrl}')`,
-        bgStyle: {
+        category: "Custom Image",
+        previewColor: `url('${customWallpaperUrl}')`,
+        backgroundStyle: {
           backgroundImage: `url('${customWallpaperUrl}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         },
-        isDark: true,
-        sentBubble: "bg-[#00a3ff] text-white shadow-md border border-white/15",
-        receivedBubble: "bg-[#1e2330]/95 text-white border border-white/10 shadow-md",
-        accentColor: "#00a3ff",
+        sentBubbleClass:
+          "bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md border border-white/15",
+        receivedBubbleClass:
+          "bg-slate-900/90 text-white border border-white/15 shadow-md",
+        isDarkCanvas: true,
       };
     }
 
     const list = Array.isArray(CHAT_WALLPAPERS) ? CHAT_WALLPAPERS : [];
     return list.find((w) => w.id === targetId) || list[0] || FALLBACK_WALLPAPER;
+  },
+
+  // Alias so SettingsPage and any component calling getActiveWallpaperConfig() works seamlessly
+  getActiveWallpaperConfig: (userId = null) => {
+    return get().getActiveWallpaper(userId);
   },
 }));

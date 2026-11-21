@@ -64,6 +64,19 @@ export const useChatStore = create((set, get) => ({
   setIsRightPanelOpen: (isOpen) => set({ isRightPanelOpen: Boolean(isOpen) }),
   toggleRightPanel: () => set((state) => ({ isRightPanelOpen: !state.isRightPanelOpen })),
 
+  resetChatState: () => {
+    set({
+      messages: [],
+      users: [],
+      selectedUser: null,
+      isUsersLoading: false,
+      isMessagesLoading: false,
+      unreadCounts: {},
+      typingUsers: {},
+      activeFilter: "all",
+    });
+  },
+
   createCustomLabel: (name, color) => {
     const cleanName = (name || "").trim();
     if (!cleanName) return null;
@@ -110,8 +123,16 @@ export const useChatStore = create((set, get) => ({
     });
   },
 
-  toggleUserLabel: (userId, labelName) => {
-    if (!userId || !labelName) return;
+  toggleUserLabel: (userId, labelIdOrName) => {
+    if (!userId || !labelIdOrName) return;
+    const allLabels = get().customLabels || DEFAULT_WORKSPACE_LABELS;
+    const matchedLabel = allLabels.find(
+      (l) =>
+        l.id.toLowerCase() === String(labelIdOrName).toLowerCase() ||
+        l.name.toLowerCase() === String(labelIdOrName).toLowerCase()
+    );
+    const canonicalName = matchedLabel ? matchedLabel.name : String(labelIdOrName);
+
     const map = { ...(get().userLabelsMap || {}) };
     const userObj = (get().users || []).find((u) => u._id === userId);
     const seedDefaults =
@@ -122,11 +143,11 @@ export const useChatStore = create((set, get) => ({
         : [];
 
     const currentList = Array.isArray(map[userId]) ? map[userId] : seedDefaults;
-    const exists = currentList.some((l) => l.toLowerCase() === labelName.toLowerCase());
+    const exists = currentList.some((l) => l.toLowerCase() === canonicalName.toLowerCase());
 
     const nextList = exists
-      ? currentList.filter((l) => l.toLowerCase() !== labelName.toLowerCase())
-      : [...currentList, labelName];
+      ? currentList.filter((l) => l.toLowerCase() !== canonicalName.toLowerCase())
+      : [...currentList, canonicalName];
 
     map[userId] = nextList;
     try {
@@ -154,7 +175,9 @@ export const useChatStore = create((set, get) => ({
 
     return assignedNames.map((name) => {
       const found = allLabels.find(
-        (l) => l?.name && l.name.toLowerCase() === String(name).toLowerCase()
+        (l) =>
+          l?.name?.toLowerCase() === String(name).toLowerCase() ||
+          l?.id?.toLowerCase() === String(name).toLowerCase()
       );
       return (
         found || {
@@ -311,14 +334,17 @@ export const useChatStore = create((set, get) => ({
 
     socket.off("newMessage");
     socket.off("typing");
+    socket.off("userTyping");
     socket.off("stopTyping");
+    socket.off("userStopTyping");
     socket.off("messagesRead");
     socket.off("messageReaction");
     socket.off("messageDeleted");
 
     socket.on("newMessage", (newMessage) => {
       const { selectedUser, messages, users, unreadCounts } = get();
-      const isFromSelectedUser = selectedUser && String(newMessage.senderId) === String(selectedUser._id);
+      const isFromSelectedUser =
+        selectedUser && String(newMessage.senderId) === String(selectedUser._id);
 
       const updatedUsers = [
         ...users.map((u) =>
@@ -367,19 +393,24 @@ export const useChatStore = create((set, get) => ({
       }
     });
 
-    socket.on("typing", ({ senderId }) => {
+    const handleTyping = ({ senderId }) => {
       if (!senderId) return;
       set((state) => ({
         typingUsers: { ...state.typingUsers, [senderId]: true },
       }));
-    });
+    };
 
-    socket.on("stopTyping", ({ senderId }) => {
+    const handleStopTyping = ({ senderId }) => {
       if (!senderId) return;
       set((state) => ({
         typingUsers: { ...state.typingUsers, [senderId]: false },
       }));
-    });
+    };
+
+    socket.on("typing", handleTyping);
+    socket.on("userTyping", handleTyping);
+    socket.on("stopTyping", handleStopTyping);
+    socket.on("userStopTyping", handleStopTyping);
 
     socket.on("messagesRead", ({ readerId }) => {
       const { selectedUser, messages } = get();
@@ -412,7 +443,9 @@ export const useChatStore = create((set, get) => ({
     if (!socket) return;
     socket.off("newMessage");
     socket.off("typing");
+    socket.off("userTyping");
     socket.off("stopTyping");
+    socket.off("userStopTyping");
     socket.off("messagesRead");
     socket.off("messageReaction");
     socket.off("messageDeleted");
